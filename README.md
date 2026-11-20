@@ -14,6 +14,7 @@ Nothing is built yet: this README records the decisions made so far.
 | `data/schema/` | JSON Schemas for the YAML files, from which the Python, JavaScript and Swift types are generated |
 | `data/sqlite/` | SQLite databases, created and updated by `tools/` |
 | `tools/` | Python scripts: data processing and the content build |
+| `tools/install.py` | Checks for and installs everything the project needs |
 | `bundle/` | The content bundle built by `tools/` (HTML, SVG, JSON, SQLite), used by both apps. Don't edit it by hand |
 | `api/` | The Python API that the web app uses to read the SQLite databases |
 | `web/` | The web app: plain HTML, CSS and JavaScript |
@@ -25,15 +26,18 @@ Each folder has a short README describing its purpose. Git does not track empty 
 
 ## Setup
 
-Nothing to install yet. Planned requirements (to be checked by a `tools/install.py`):
+Run `python3 tools/install.py` to check for everything the project needs. It reports what is installed and offers to install anything missing or upgrade anything too old, asking before each one. Use `--check` to only report, or `--yes` to install without asking. It uses Homebrew on macOS, apt on Debian/Ubuntu Linux, and winget on Windows. It runs on the Python 3.9 built into macOS, because it is what installs a newer Python.
 
 | Requirement | Used for |
 | --- | --- |
-| Homebrew (macOS only) | Installing the other requirements on macOS |
-| Python 3.13 or newer | The scripts in `tools/` and the API in `api/` |
-| pandoc | Converting Markdown to HTML (`tools/`) |
-| Node.js and mermaid-cli (`mmdc`) | Rendering Mermaid diagrams to SVG during the build. The only non-Python step |
-| Xcode | Building and running the iOS app |
+| Homebrew (macOS only) | Installing the other requirements on macOS. Installed with the official script from brew.sh if missing |
+| Python 3.13 or newer | The scripts in `tools/` and the API in `api/`. If only an older Python is found, the script offers to install the latest with Homebrew |
+| pandoc | Converting Markdown in `data/md/` to HTML in `bundle/` |
+| Node.js 20 or newer | Running mermaid-cli, the only non-Python step of the build |
+| mermaid-cli (`mmdc`) | Rendering Mermaid diagrams to SVG in `bundle/`. Installed with npm; it downloads its own headless Chrome the first time |
+| Xcode (macOS only) | Building and running the iOS app. Comes only from the Mac App Store: the script opens its page there. The Command Line Tools alone are not enough |
+
+When the project needs something new, add it to the `REQUIREMENTS` list in `tools/install.py` and to the table above.
 
 ## Decisions
 
@@ -65,4 +69,5 @@ Nothing to install yet. Planned requirements (to be checked by a `tools/install.
 
 ## Change log
 
+- **2026-11-20:** `tools/install.py`: checks for and installs Homebrew, Python 3.13, pandoc, Node.js, mermaid-cli and Xcode.
 - **2026-11-20:** New repository. Folder structure and READMEs; decisions on languages, data formats, the shared content build and the iOS app.
