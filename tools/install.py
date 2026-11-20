@@ -21,6 +21,7 @@ because it is what upgrades Python.
 from __future__ import annotations
 
 import argparse
+import glob
 import os
 import platform
 import re
@@ -208,6 +209,24 @@ def locate(command: str) -> str | None:
     return shutil.which(command)
 
 
+def xcode_not_selected() -> bool:
+    """If the Xcode app is installed but xcode-select points elsewhere (usually the
+    Command Line Tools), say how to switch to it and return True."""
+    apps = sorted(glob.glob("/Applications/Xcode*.app"))
+    if not apps:
+        return False
+    try:
+        selected = subprocess.run(["xcode-select", "-p"], capture_output=True, text=True, timeout=15).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        selected = "unknown"
+    app = apps[0]
+    print(f"  {app} is installed, but the developer tools in use are {selected or 'not set'}.")
+    print("  Switch to Xcode and accept its license, then run this again:")
+    print(f"    sudo xcode-select -s {app}/Contents/Developer")
+    print("    sudo xcodebuild -license accept")
+    return True
+
+
 def ask(question: str) -> bool:
     try:
         return input(f"{question} [y/N] ").strip().lower() in ("y", "yes")
@@ -294,6 +313,9 @@ def main() -> int:
         else:
             print("  Missing.")
             verb = "install"
+        if req["name"] == "Xcode" and xcode_not_selected():
+            problems.append("Xcode (not selected)")
+            continue
         if args.check or not install(req, system, args.yes, verb):
             problems.append(f"{req['name']} ({state})")
 

@@ -35,7 +35,7 @@ Run `python3 tools/install.py` to check for everything the project needs. It rep
 | pandoc | Converting Markdown in `data/md/` to HTML in `bundle/` |
 | Node.js 20 or newer | Running mermaid-cli, the only non-Python step of the build |
 | mermaid-cli (`mmdc`) | Rendering Mermaid diagrams to SVG in `bundle/`. Installed with npm; it downloads its own headless Chrome the first time |
-| Xcode (macOS only) | Building and running the iOS app. Comes only from the Mac App Store: the script opens its page there. The Command Line Tools alone are not enough |
+| Xcode (macOS only) | Building and running the iOS app. Comes only from the Mac App Store: the script opens its page there. The Command Line Tools alone are not enough. If Xcode is installed but not selected, the script prints the `xcode-select` command to switch to it |
 
 When the project needs something new, add it to the `REQUIREMENTS` list in `tools/install.py` and to the table above.
 
@@ -69,5 +69,6 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-20:** `tools/install.py` notices when Xcode is installed but the Command Line Tools are selected, and prints the command to switch.
 - **2026-11-20:** `tools/install.py`: checks for and installs Homebrew, Python 3.13, pandoc, Node.js, mermaid-cli and Xcode.
 - **2026-11-20:** New repository. Folder structure and READMEs; decisions on languages, data formats, the shared content build and the iOS app.
