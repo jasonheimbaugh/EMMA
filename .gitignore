@@ -1,0 +1,19 @@
+# Python cache files
+__pycache__/
+*.pyc
+
+# macOS folder metadata
+.DS_Store
+
+# Excel and Word lock files (open documents)
+~$*
+
+# Xcode user data and build output
+ios/**/xcuserdata/
+ios/**/DerivedData/
+*.xcuserstate
+
+# SQLite journal files left while a database is open
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
