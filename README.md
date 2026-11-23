@@ -8,6 +8,7 @@ Nothing is built yet: this README records the decisions made so far.
 
 | Folder | Contents |
 | --- | --- |
+| `doc/` | Project documentation. `doc/config.md` describes the tech stack, with a diagram |
 | `data/` | Source content: Markdown, YAML and SQLite |
 | `data/md/` | Markdown documents, including Mermaid diagrams |
 | `data/yaml/` | YAML configuration and structured content |
@@ -58,7 +59,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
   - The SQLite databases are kept on the device and read with GRDB.swift, so the app works offline during an outage.
   - Swift reads the bundle's JSON with `Codable`, so no YAML library is needed on iOS.
 - **Why an iOS app as well as the web app:** dependable push alerts (and Critical Alerts, with Apple's approval), offline access and background location. These are weak or missing in a web app on iPhone.
-- **Rokwire:** set aside for now. EMMA is a standalone app, not a module of the Illinois app.
+- **Rokwire:** later, EMMA may also be offered on iOS and Android through Rokwire, the platform behind the Illinois app. Rokwire apps are Flutter, not Swift, so this would use the same API and content bundle but separate app code. For now EMMA is a standalone web app and Swift iOS app. See `doc/config.md`.
 
 ## Open questions
 
@@ -69,6 +70,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-23:** `doc/config.md`: the tech stack, with a Mermaid diagram of how YAML, Markdown and SQLite are built into the bundle and used by the web app, the iOS app and a future Rokwire app.
 - **2026-11-20:** `tools/install.py` notices when Xcode is installed but the Command Line Tools are selected, and prints the command to switch.
 - **2026-11-20:** `tools/install.py`: checks for and installs Homebrew, Python 3.13, pandoc, Node.js, mermaid-cli and Xcode.
 - **2026-11-20:** New repository. Folder structure and READMEs; decisions on languages, data formats, the shared content build and the iOS app.
