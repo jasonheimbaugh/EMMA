@@ -22,6 +22,7 @@ flowchart LR
         html["HTML pages"]
         svg["SVG diagrams"]
         json["JSON"]
+        tk["Toolkit copy<br/>(for iOS)"]
         dbcopy[("SQLite")]
     end
 
@@ -39,6 +40,10 @@ flowchart LR
     py --> pandoc --> html
     py --> mmdc --> svg
     py --> json
+    cdn["Illinois Toolkit CDN"] -->|checked every build| py
+    py --> tk
+    tk --> ios
+    cdn --> web
     py --> dbcopy
 
     dbcopy --> api
@@ -84,13 +89,21 @@ The scripts in `tools/` turn the source files into the content bundle in `bundle
 
 Every HTML page uses the Illinois Web Components Toolkit (v3): it loads `toolkit.css` and `toolkit.js` from `cdn.toolkit.illinois.edu/3/`, and uses toolkit components for layout and styling. See https://builder3.toolkit.illinois.edu/getting_started/index.html.
 
+| | Web app | iOS app |
+| --- | --- | --- |
+| Toolkit files | From the CDN (`cdn.toolkit.illinois.edu/3/`) | Downloaded copy in `bundle/toolkit/`, refreshed by every build |
+| Version | Latest v3 | Latest v3, as of the last build |
+| Campus header and footer | Yes, from `cdn.brand.illinois.edu` | No |
+
+Every build checks the toolkit's files on the CDN, including everything they load (the campus stylesheet, fonts and further scripts), and downloads any that have changed, so the iOS copy is always the current release. If the CDN can't be reached, the build warns and keeps the existing copy.
+
 Diagrams are rendered once, at build time, so they appear instantly, look the same in every app and work offline on iOS.
 
 ## Apps
 
 ### Web app (JavaScript)
 
-- Plain HTML, CSS and JavaScript in `web/`, with no build step, built with the Illinois Web Components Toolkit.
+- Plain HTML, CSS and JavaScript in `web/`, with no build step, built with the Illinois Web Components Toolkit loaded from its CDN, with the campus header and footer.
 - Online only: no offline mode.
 - Shows the bundle's HTML pages and SVG diagrams, and reads the bundle's JSON.
 - Reads and updates records through the Python API in `api/`, which uses the SQLite databases. The browser never opens a database itself.
@@ -99,7 +112,7 @@ Diagrams are rendered once, at build time, so they appear instantly, look the sa
 
 - Written in Swift, as much as possible, in `ios/`.
 - SwiftUI for everything interactive: alerts, check-ins, forms, maps and notifications.
-- Shows the bundle's HTML pages and SVG diagrams in a `WKWebView`, so documents look the same as on the web. To work offline it needs its own copy of the toolkit (an open question in `README.md`).
+- Shows the bundle's HTML pages and SVG diagrams in a `WKWebView`, so documents look the same as on the web. Pages load the toolkit from `bundle/toolkit/` so they work offline, and have no campus header or footer.
 - Reads the bundle's JSON with `Codable`.
 - Keeps the SQLite databases on the device and reads them with GRDB.swift, so it works offline during an outage.
 
