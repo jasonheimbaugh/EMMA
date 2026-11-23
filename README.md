@@ -53,7 +53,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
   - **iOS:** no campus header or footer. To work offline, the app uses a downloaded copy of the toolkit in `bundle/toolkit/`, with everything it loads (the campus stylesheet, fonts and any further scripts). Every build checks the CDN and downloads the files again if they have changed, so the copy is always the current release. If the CDN can't be reached, the build warns and keeps the existing copy.
 - **Web app is online only:** no offline mode, no service worker and no SQLite in the browser. The web app reads data through the Python API in `api/` (FastAPI proposed).
 - **ICS forms:** each Incident Command System form has a blank template in `data/md/template/ics/`, named after the form (`ics-207.md`). For an activation it is copied into the incident's folder, `data/md/incident/active/yyyy-mm-dd-####/`, and filled in there; the template itself is never filled in.
-- **ICS 207 (Incident Organization Chart):** a Mermaid flowchart. Incident Command at the top, with the Operations, Logistics and Planning Section Chiefs and RTIC reporting to it. Each box has a 4 pt outline in a campus color: Incident Command `il-prairie` (#006230), Operations `il-orange` (#ff5f05), Logistics `il-harvest` (#fcb316), Planning `il-arches` (#009fd4), RTIC `il-berry` (#5c0e41). Each box shows the role, then the person's name; in the template the name is *To Be Assigned* in italics, replaced with the assigned person's name (not in italics) when filled in.
+- **ICS 207 (Incident Organization Chart):** a Mermaid flowchart. Incident Command at the top, with the Operations, Logistics and Planning Section Chiefs and RTIC reporting to it. Each box has a 4 pt outline in a campus color: Incident Command `il-prairie` (#006230), Operations `il-orange` (#ff5f05), Logistics `il-harvest` (#fcb316), Planning `il-arches` (#009fd4), RTIC `il-berry` (#5c0e41). Each box shows the role, then the person's name; RTIC has a blank `&nbsp;` line under the role, so every box has the same number of lines and the same size; in the template the name is *To Be Assigned* in italics, replaced with the assigned person's name (not in italics) when filled in.
 - **Data formats:** all data is in SQLite databases, Markdown (including Mermaid) and YAML.
 - **One build for both apps:** Python in `tools/` builds the content bundle in `bundle/`, and both apps use it, so they always show the same content:
   - Markdown becomes HTML with pandoc.
@@ -78,6 +78,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-23:** ICS 207: a blank `&nbsp;` line under RTIC, so all boxes are the same size (Mermaid has no setting for box size).
 - **2026-11-23:** `data/md/template/ics/ics-207.md`: the ICS 207 organization chart template, a Mermaid flowchart with brand-colored outlines. Folders for ICS templates and active incidents.
 - **2026-11-23:** Toolkit questions settled: always the latest v3; campus header and footer on the web app only; the iOS app uses a copy in `bundle/toolkit/`, checked against the CDN and refreshed on every build.
 - **2026-11-23:** All HTML uses the Illinois Web Components Toolkit (v3), loaded from its CDN. Open questions added on version pinning, offline use on iOS, and the campus header and footer.
