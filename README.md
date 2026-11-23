@@ -44,7 +44,8 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 - **Languages:** Swift for the iOS app, as much of it as possible. Python for all backend data processing and the API. JavaScript, not PHP, for the web app.
 - **Why JavaScript, not PHP:** neither language keeps the web app in step with Swift by itself; sharing the same data files and the same built HTML does that. JavaScript is chosen because Mermaid runs only in JavaScript, and the same code can run in the browser and, if needed, in the iOS app's web views.
-- **Web stack:** plain HTML, CSS and JavaScript with no build step. No external CDNs or web fonts. Responsive CSS for computer monitors and phones.
+- **Web stack:** plain HTML, CSS and JavaScript with no build step. Responsive CSS for computer monitors and phones.
+- **Illinois Web Components Toolkit (v3):** all HTML EMMA produces (the bundle's pages, the web app, and pages shown in the iOS app) uses the University's toolkit. Getting started: https://builder3.toolkit.illinois.edu/getting_started/index.html; component specifications: https://builder3.toolkit.illinois.edu/component/index.html. Every page loads `toolkit.css` and `toolkit.js` (as a module) from `cdn.toolkit.illinois.edu/3/`; since v3.1.0 `toolkit.css` also loads the required campus stylesheet. Pages should also have the campus skip-to link and the GDPR cookie banner. Use toolkit components and classes before writing our own CSS. This replaces the earlier rule of no external CDNs.
 - **Web app is online only:** no offline mode, no service worker and no SQLite in the browser. The web app reads data through the Python API in `api/` (FastAPI proposed).
 - **Data formats:** all data is in SQLite databases, Markdown (including Mermaid) and YAML.
 - **One build for both apps:** Python in `tools/` builds the content bundle in `bundle/`, and both apps use it, so they always show the same content:
@@ -67,9 +68,13 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 - **Ownership and licence:** software made as part of University employment is owned by the University. Check with the Office of Technology Management (otm@illinois.edu) before releasing EMMA as open source, especially if it's grant-funded. The usual University licence is the University of Illinois/NCSA Open Source License.
 - **Hosting:** where the API and web app run, and behind which sign-in (for example, University NetID).
 - **Android:** not planned.
+- **Toolkit version:** `/3/` always loads the latest v3 release; pinning a version (such as `3.1.0`) is possible but has support-lifecycle implications.
+- **Toolkit offline on iOS:** the toolkit loads from a CDN, but the iOS app must show documents offline. Proposed: the build downloads a pinned copy of the toolkit into `bundle/` for the iOS app only. Needs confirming that this is allowed.
+- **Campus header and footer:** whether EMMA's pages use the campus header and footer from the Illinois Branding CDN.
 
 ## Change log
 
+- **2026-11-23:** All HTML uses the Illinois Web Components Toolkit (v3), loaded from its CDN. Open questions added on version pinning, offline use on iOS, and the campus header and footer.
 - **2026-11-23:** `doc/config.md`: the tech stack, with a Mermaid diagram of how YAML, Markdown and SQLite are built into the bundle and used by the web app, the iOS app and a future Rokwire app.
 - **2026-11-20:** `tools/install.py` notices when Xcode is installed but the Command Line Tools are selected, and prints the command to switch.
 - **2026-11-20:** `tools/install.py`: checks for and installs Homebrew, Python 3.13, pandoc, Node.js, mermaid-cli and Xcode.

@@ -77,10 +77,12 @@ The scripts in `tools/` turn the source files into the content bundle in `bundle
 
 | From | To | With |
 | --- | --- | --- |
-| Markdown | HTML pages | pandoc, run by Python |
+| Markdown | HTML pages built with the Illinois Web Components Toolkit | pandoc, run by Python, with a page template that loads the toolkit |
 | Mermaid diagrams in Markdown | SVG images, linked from the HTML | mermaid-cli (Node.js), run by Python. The only non-Python step |
 | YAML | JSON, checked against `data/schema/` | Python |
 | SQLite | SQLite, created and updated | Python |
+
+Every HTML page uses the Illinois Web Components Toolkit (v3): it loads `toolkit.css` and `toolkit.js` from `cdn.toolkit.illinois.edu/3/`, and uses toolkit components for layout and styling. See https://builder3.toolkit.illinois.edu/getting_started/index.html.
 
 Diagrams are rendered once, at build time, so they appear instantly, look the same in every app and work offline on iOS.
 
@@ -88,7 +90,7 @@ Diagrams are rendered once, at build time, so they appear instantly, look the sa
 
 ### Web app (JavaScript)
 
-- Plain HTML, CSS and JavaScript in `web/`, with no build step and no external CDNs or web fonts.
+- Plain HTML, CSS and JavaScript in `web/`, with no build step, built with the Illinois Web Components Toolkit.
 - Online only: no offline mode.
 - Shows the bundle's HTML pages and SVG diagrams, and reads the bundle's JSON.
 - Reads and updates records through the Python API in `api/`, which uses the SQLite databases. The browser never opens a database itself.
@@ -97,7 +99,7 @@ Diagrams are rendered once, at build time, so they appear instantly, look the sa
 
 - Written in Swift, as much as possible, in `ios/`.
 - SwiftUI for everything interactive: alerts, check-ins, forms, maps and notifications.
-- Shows the bundle's HTML pages and SVG diagrams in a `WKWebView`, so documents look the same as on the web.
+- Shows the bundle's HTML pages and SVG diagrams in a `WKWebView`, so documents look the same as on the web. To work offline it needs its own copy of the toolkit (an open question in `README.md`).
 - Reads the bundle's JSON with `Codable`.
 - Keeps the SQLite databases on the device and reads them with GRDB.swift, so it works offline during an outage.
 
