@@ -81,6 +81,32 @@ REQUIREMENTS = [
         },
     },
     {
+        "name": "PyYAML",
+        "module": "yaml",
+        "purpose": "reads the YAML in data/yaml/ (tools/publish.py)",
+        # "python3" is replaced by the project's Python found above.
+        # --break-system-packages is needed because Homebrew's Python otherwise
+        # refuses pip installs; --user keeps the package in your home folder.
+        "install": {
+            "Darwin": ["python3", "-m", "pip", "install", "--user", "--break-system-packages", "pyyaml"],
+            "Linux": ["python3", "-m", "pip", "install", "--user", "--break-system-packages", "pyyaml"],
+            "Windows": ["python3", "-m", "pip", "install", "--user", "pyyaml"],
+        },
+    },
+    {
+        "name": "jsonschema",
+        "module": "jsonschema",
+        "purpose": "checks the YAML against the schemas in data/schema/ (tools/publish.py)",
+        # "python3" is replaced by the project's Python found above.
+        # --break-system-packages is needed because Homebrew's Python otherwise
+        # refuses pip installs; --user keeps the package in your home folder.
+        "install": {
+            "Darwin": ["python3", "-m", "pip", "install", "--user", "--break-system-packages", "jsonschema"],
+            "Linux": ["python3", "-m", "pip", "install", "--user", "--break-system-packages", "jsonschema"],
+            "Windows": ["python3", "-m", "pip", "install", "--user", "jsonschema"],
+        },
+    },
+    {
         "name": "Node.js",
         "command": "node",
         "purpose": "runs mermaid-cli (the only non-Python step of the build)",
