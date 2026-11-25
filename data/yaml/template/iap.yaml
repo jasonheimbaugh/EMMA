@@ -1,0 +1,89 @@
+# Incident Action Plan (IAP) template.
+#
+# For each activation, copy this file to
+#   data/yaml/incident/active/<yyyy-mm-dd-####>/iap.yaml
+# and copy the form templates it lists from data/md/template/ics/ to
+#   data/md/incident/active/<yyyy-mm-dd-####>/
+# then fill in both. Never fill in the templates themselves.
+#
+# The values under incident and operational_period are shared by every form:
+# the build puts them wherever a form has {{ incident.name }},
+# {{ incident.number }}, {{ operational_period.start }} or
+# {{ operational_period.end }}.
+# Checked against data/schema/iap.schema.json.
+
+incident:
+  name: ""                  # for example: Main Quad Severe Weather
+  number: ""                # yyyy-mm-dd-####, the same as the incident's folder name
+
+operational_period:
+  number: 1
+  start: ""                 # yyyy-mm-dd hh:mm (24-hour, local time)
+  end: ""                   # yyyy-mm-dd hh:mm
+
+prepared_by:
+  name: To Be Assigned
+  position: Planning Section Chief
+
+approved_by:
+  name: To Be Assigned
+  position: Incident Commander
+
+# The forms in the plan, in the order they appear. Set include to false to
+# leave a form out of this operational period's plan.
+forms:
+  - form: ICS 201
+    title: Incident Briefing
+    file: ics-201.md
+    prepared_by: Incident Commander
+    include: true
+  - form: ICS 202
+    title: Incident Objectives
+    file: ics-202.md
+    prepared_by: Planning Section Chief
+    include: true
+  - form: ICS 203
+    title: Organization Assignment List
+    file: ics-203.md
+    prepared_by: Resources Unit Leader
+    include: true
+  - form: ICS 204
+    title: Assignment List
+    file: ics-204.md
+    prepared_by: Resources Unit Leader and Operations Section Chief
+    include: true
+  - form: ICS 205
+    title: Incident Radio Communications Plan
+    file: ics-205.md
+    prepared_by: Communications Unit Leader
+    include: true
+  - form: ICS 205A
+    title: Communications List
+    file: ics-205a.md
+    prepared_by: Communications Unit Leader
+    include: true
+  - form: ICS 206
+    title: Medical Plan
+    file: ics-206.md
+    prepared_by: Medical Unit Leader
+    include: true
+  - form: ICS 207
+    title: Incident Organization Chart
+    file: ics-207.md
+    prepared_by: Resources Unit Leader
+    include: true
+  - form: ICS 208
+    title: Safety Message/Plan
+    file: ics-208.md
+    prepared_by: Safety Officer
+    include: true
+  - form: ICS 214
+    title: Activity Log
+    file: ics-214.md
+    prepared_by: All incident personnel
+    include: true
+  - form: ICS 220
+    title: Air Operations Summary
+    file: ics-220.md
+    prepared_by: Air Operations Branch Director
+    include: true
