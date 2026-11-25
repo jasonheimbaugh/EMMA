@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+#
+# Copyright 2026 The Board of Trustees of the University of Illinois. All Rights Reserved.
+# Licensed under the terms of the MIT License (the "License")
+# The License is included in the distribution as License file.
+# You may not use this file except in compliance with the License.
+# Software distributed under the License is distributed on an "AS IS" BASIS,  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License file for the specific language governing permissions and limitations under the License.
+#
 """Publish EMMA content as web pages.
 
 Usage:
@@ -56,6 +64,16 @@ IAP_DIAGRAMS = [ROOT / "web/iap/diagrams", ROOT / "bundle/iap/diagrams"]
 
 TOOLKIT = "//cdn.toolkit.illinois.edu/3"
 SITE_NAME = "EMMA"
+
+# The copyright and license header, as an HTML comment at the top of every page.
+LICENSE_HEADER_HTML = """<!--
+* Copyright 2026 The Board of Trustees of the University of Illinois. All Rights Reserved.
+* Licensed under the terms of the MIT License (the "License")
+* The License is included in the distribution as License file.
+* You may not use this file except in compliance with the License.
+* Software distributed under the License is distributed on an "AS IS" BASIS,  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License file for the specific language governing permissions and limitations under the License.
+-->"""
 
 # A ```mermaid ... ``` block in Markdown.
 MERMAID_BLOCK = re.compile(r"^```mermaid[ \t]*\n(.*?)^```[ \t]*$", re.S | re.M)
@@ -361,6 +379,7 @@ def contents(forms: list[dict]) -> str:
 def page(title: str, main: str) -> str:
     e = html.escape
     return f"""<!DOCTYPE html>
+{LICENSE_HEADER_HTML}
 <html lang="en">
 <head>
 <meta charset="utf-8">

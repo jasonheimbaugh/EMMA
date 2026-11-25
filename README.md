@@ -8,6 +8,7 @@ Nothing is built yet: this README records the decisions made so far.
 
 | Folder | Contents |
 | --- | --- |
+| `LICENSE` | The MIT License, which EMMA is released under |
 | `doc/` | Project documentation. `doc/config.md` describes the tech stack, with a diagram |
 | `data/` | Source content: Markdown, YAML and SQLite |
 | `data/md/` | Markdown documents, including Mermaid diagrams |
@@ -55,6 +56,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Decisions
 
+- **License:** MIT License, copyright 2026 The Board of Trustees of the University of Illinois; the full text is in `LICENSE`. Every code file starts with the University's copyright and license header, in the file's own comment style: `/* ... */` for Swift, JavaScript and CSS, `#` lines for Python (after the `#!` line), and `<!-- ... -->` for HTML. `tools/publish.py` adds it to every page it builds. JSON files can't hold comments, so the schemas have no header.
 - **Languages:** Swift for the iOS app, as much of it as possible. Python for all backend data processing and the API. JavaScript, not PHP, for the web app.
 - **Why JavaScript, not PHP:** neither language keeps the web app in step with Swift by itself; sharing the same data files and the same built HTML does that. JavaScript is chosen because Mermaid runs only in JavaScript, and the same code can run in the browser and, if needed, in the iOS app's web views.
 - **Web stack:** plain HTML, CSS and JavaScript with no build step. Responsive CSS for computer monitors and phones.
@@ -90,12 +92,12 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 ## Open questions
 
 - **GitHub account:** EMMA is on the jasonheimbaugh account. The University of Illinois System Shared GitHub Service (github.illinois.edu) is available to all employees if it should move there.
-- **Ownership and licence:** software made as part of University employment is owned by the University. Check with the Office of Technology Management (otm@illinois.edu) before releasing EMMA as open source, especially if it's grant-funded. The usual University licence is the University of Illinois/NCSA Open Source License.
 - **Hosting:** where the API and web app run, and behind which sign-in (for example, University NetID).
 - **Android:** not planned.
 
 ## Change log
 
+- **2026-11-25:** MIT License (`LICENSE`), and the University's copyright and license header in every code file and in the pages `tools/publish.py` builds.
 - **2026-11-25:** iOS bundle ID `edu.illinois.emma`, in `data/yaml/app.yaml` with its schema. When the Apple Developer account is needed, recorded in Decisions.
 - **2026-11-25:** Mermaid diagrams are rendered to PNG, not SVG, for both the web and iOS. `tools/publish.py --iap` writes them to `web/iap/diagrams/` and `bundle/iap/diagrams/`; an organization chart's PNG is shown until `ilw-org-chart` has drawn it.
 - **2026-11-25:** `tools/publish.py` draws organization charts (Mermaid flowcharts that are trees, such as ICS 207's) with the toolkit's `ilw-org-chart` instead of an SVG. The Markdown keeps the Mermaid chart, which Marked 3 and the iOS app still use.

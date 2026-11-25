@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+#
+# Copyright 2026 The Board of Trustees of the University of Illinois. All Rights Reserved.
+# Licensed under the terms of the MIT License (the "License")
+# The License is included in the distribution as License file.
+# You may not use this file except in compliance with the License.
+# Software distributed under the License is distributed on an "AS IS" BASIS,  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License file for the specific language governing permissions and limitations under the License.
+#
 """Check for and install everything this project needs.
 
 Each requirement is listed in REQUIREMENTS below, in the order it is checked.
