@@ -17,3 +17,6 @@ ios/**/DerivedData/
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
+
+# Apple Push Notification service keys (secrets)
+*.p8

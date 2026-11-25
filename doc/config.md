@@ -48,6 +48,9 @@ flowchart LR
 
     dbcopy --> api
     api --> web
+    apns["Apple Push Notification<br/>service (APNs)"]
+    api -->|alerts| apns -->|alerts| ios
+    ios -->|device token| api
     html --> web
     svg --> web
     json --> web
@@ -126,3 +129,61 @@ Diagrams are rendered once, at build time, so they appear instantly, look the sa
 
 - Python, in `api/` (FastAPI proposed).
 - The only way the web app, and later the Rokwire app, reads and updates records in the SQLite databases.
+- Sends push notifications to the iOS app through Apple (see Notifications).
+
+## Notifications
+
+The Python API sends push notifications to the iOS app through Apple's Push Notification service (APNs). The server never connects to a phone directly: it sends each notification to APNs, and Apple delivers it.
+
+```mermaid
+sequenceDiagram
+    participant App as iOS app
+    participant APNs as Apple (APNs)
+    participant API as Python API
+
+    App->>App: Ask the user's permission
+    App->>APNs: Register for notifications
+    APNs-->>App: Device token
+    App->>API: Device token, user, groups
+    API->>API: Store in SQLite
+    Note over API: An alert is sent
+    API->>APNs: Device token + JSON payload (signed with the .p8 key)
+    APNs-->>App: Notification
+    APNs-->>API: Result (remove tokens that are no longer valid)
+```
+
+### Steps
+
+1. **Permission:** the app asks with `UNUserNotificationCenter.requestAuthorization`, then calls `registerForRemoteNotifications()`.
+2. **Device token:** Apple gives the app a token that identifies that app on that phone.
+3. **Registration:** the app sends the token to the API, which stores it in SQLite with the user, the device and their groups (for example, Operations or Logistics), so alerts can go to everyone or to one group.
+4. **Sending:** the API sends an HTTP/2 request to APNs with the device token and a JSON payload, for example:
+
+   ```json
+   {"aps": {"alert": {"title": "Shelter-in-place", "body": "Main Quad, effective now"},
+            "sound": "default", "interruption-level": "time-sensitive"}}
+   ```
+
+5. **Clean-up:** when APNs reports that a token is no longer valid (for example, the app was deleted), the API removes it.
+
+### Setup
+
+| Item | Notes |
+| --- | --- |
+| Apple Developer Program membership | Ask Technology Services whether the University's organization account can be used before paying for one |
+| Push Notifications capability | Turned on for the app in Xcode |
+| APNs authentication key (`.p8` file) | From the developer account. The API uses it to sign a short-lived token (JWT) for each request. One key works for all the account's apps and does not expire. It is a secret: never commit it (`.gitignore` excludes `*.p8`) |
+| Python library | `aioapns`, or `httpx` with HTTP/2 and `PyJWT` |
+
+### Kinds of notification
+
+| Kind | Use | Approval |
+| --- | --- | --- |
+| Time-sensitive (`interruption-level: time-sensitive`) | Urgent alerts that should show through Focus modes | None; turn on the Time Sensitive Notifications capability |
+| Critical Alert (`interruption-level: critical`) | Life-safety alerts that play a sound even when the phone is muted or in Do Not Disturb | Needs a special entitlement from Apple: apply early and explain the need. Approval is not guaranteed |
+| Silent (background) | Tell the app to download updated plans or data | None, but iOS limits how often these run, so never use them for urgent alerts |
+
+### Web app and Android
+
+- The web app is online only and shows alerts while it is open; it does not receive push notifications.
+- If EMMA later reaches Android (for example, through Rokwire), Firebase Cloud Messaging can send to both iOS (through APNs) and Android from one API, at the cost of depending on Google.

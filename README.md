@@ -23,7 +23,7 @@ Nothing is built yet: this README records the decisions made so far.
 | `web/` | The web app: plain HTML, CSS and JavaScript |
 | `ios/` | The iOS app, in Swift |
 
-`.gitignore` keeps Python cache files, macOS `.DS_Store` files, Xcode user data and build output, and SQLite journal files out of the repository.
+`.gitignore` keeps Python cache files, macOS `.DS_Store` files, Xcode user data and build output, SQLite journal files and APNs keys (`*.p8`) out of the repository.
 
 Each folder has a short README describing its purpose. Git does not track empty folders, so those files also keep the folders in the repository.
 
@@ -66,6 +66,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
   - Rendered documents and diagrams are shown in a `WKWebView` from the bundle's HTML, rather than a second Markdown renderer in Swift.
   - The SQLite databases are kept on the device and read with GRDB.swift, so the app works offline during an outage.
   - Swift reads the bundle's JSON with `Codable`, so no YAML library is needed on iOS.
+- **Notifications:** the Python API sends push notifications to the iOS app through Apple's Push Notification service (APNs), signed with an APNs key (`.p8`, never committed). Urgent alerts are time-sensitive; Critical Alerts need an entitlement from Apple. Details in `doc/config.md`.
 - **Why an iOS app as well as the web app:** dependable push alerts (and Critical Alerts, with Apple's approval), offline access and background location. These are weak or missing in a web app on iPhone.
 - **Rokwire:** later, EMMA may also be offered on iOS and Android through Rokwire, the platform behind the Illinois app. Rokwire apps are Flutter, not Swift, so this would use the same API and content bundle but separate app code. For now EMMA is a standalone web app and Swift iOS app. See `doc/config.md`.
 
@@ -78,6 +79,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-25:** `doc/config.md`: notifications through Apple's Push Notification service (APNs), with a sequence diagram, setup, and the kinds of notification. `.gitignore` excludes APNs keys.
 - **2026-11-23:** ICS 207: "RTIC" renamed "RTIC Supervisor". The blank-line workarounds for equal box sizes were removed.
 - **2026-11-23:** `data/md/template/ics/ics-207.md`: the ICS 207 organization chart template, a Mermaid flowchart with brand-colored outlines. Folders for ICS templates and active incidents.
 - **2026-11-23:** Toolkit questions settled: always the latest v3; campus header and footer on the web app only; the iOS app uses a copy in `bundle/toolkit/`, checked against the CDN and refreshed on every build.
