@@ -85,6 +85,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-25:** ICS 207 matches the other forms: incident and operational period fields, the organization chart as block 3 (ELK layout, redux theme, roles on two lines) and Prepared by. Template edits and the chart are otherwise unchanged.
 - **2026-11-25:** ICS 201 and ICS 214 removed from the IAP; their templates stay in `data/md/template/ics/`.
 - **2026-11-25:** Incident Action Plan template, `data/yaml/template/iap.yaml`, with its schema, and Markdown templates for ICS 201, 202, 203, 204, 205, 205A, 206, 208, 214 and 220 alongside the existing ICS 207.
 - **2026-11-25:** `tools/install.py` requires mermaid-cli 12 or newer, whose Mermaid includes the ELK layout; no separate layout-elk package is needed.
