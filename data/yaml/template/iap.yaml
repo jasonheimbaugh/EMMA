@@ -30,13 +30,10 @@ approved_by:
   position: Incident Commander
 
 # The forms in the plan, in the order they appear. Set include to false to
-# leave a form out of this operational period's plan.
+# leave a form out of this operational period's plan. ICS 201 (Incident
+# Briefing) and ICS 214 (Activity Log) are not part of the plan; their
+# templates are in data/md/template/ics/ for use on their own.
 forms:
-  - form: ICS 201
-    title: Incident Briefing
-    file: ics-201.md
-    prepared_by: Incident Commander
-    include: true
   - form: ICS 202
     title: Incident Objectives
     file: ics-202.md
@@ -76,11 +73,6 @@ forms:
     title: Safety Message/Plan
     file: ics-208.md
     prepared_by: Safety Officer
-    include: true
-  - form: ICS 214
-    title: Activity Log
-    file: ics-214.md
-    prepared_by: All incident personnel
     include: true
   - form: ICS 220
     title: Air Operations Summary
