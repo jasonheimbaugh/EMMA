@@ -14,10 +14,12 @@ What --iap does:
      under data/md/incident/active/ (for an incident).
   3. Fills in {{ incident.name }}, {{ incident.number }},
      {{ operational_period.start }} and the other {{ ... }} fields from the YAML.
-  4. Draws each Mermaid organization chart (a flowchart that is a tree, such
-     as ICS 207's) with the toolkit's ilw-org-chart, keeping each box's
-     outline color, and renders every other Mermaid diagram to SVG with
-     mermaid-cli (mmdc).
+  4. Renders every Mermaid diagram to a PNG with mermaid-cli (mmdc), saved in
+     web/iap/diagrams/ for the page and bundle/iap/diagrams/ for the iOS app.
+     The page shows each PNG, except that an organization chart (a flowchart
+     that is a tree, such as ICS 207's) is drawn with the toolkit's
+     ilw-org-chart, keeping each box's outline color, with its PNG shown only
+     until the chart has drawn.
   5. Converts each form's Markdown to HTML with pandoc.
   6. Writes one page, web/iap/index.html, built with the Illinois Web
      Components Toolkit (v3) from its CDN, with the campus header and footer.
@@ -48,6 +50,9 @@ TEMPLATE_FORMS = ROOT / "data/md/template/ics"
 YAML_DIR = ROOT / "data/yaml"
 MD_DIR = ROOT / "data/md"
 IAP_OUTPUT = ROOT / "web/iap/index.html"
+# Every Mermaid diagram is also saved as a PNG, in both places: for the web page
+# and for the iOS app's content bundle.
+IAP_DIAGRAMS = [ROOT / "web/iap/diagrams", ROOT / "bundle/iap/diagrams"]
 
 TOOLKIT = "//cdn.toolkit.illinois.edu/3"
 SITE_NAME = "EMMA"
@@ -224,33 +229,81 @@ def org_chart_html(data: dict, chart_id: str, label: str) -> str:
     )
 
 
-def render_diagrams(markdown: str, slug: str, title: str, workdir: Path) -> tuple[str, list[str]]:
+def png_size(path: Path) -> tuple[int, int]:
+    """Width and height of a PNG, from its header."""
+    header = path.read_bytes()[16:24]
+    return int.from_bytes(header[:4], "big"), int.from_bytes(header[4:], "big")
+
+
+def render_png(source: str, name: str, workdir: Path) -> tuple[int, int]:
+    """Render one Mermaid diagram to <name>.png (at twice the size, for sharp
+    text on high-resolution screens, on white) in every folder in IAP_DIAGRAMS.
+    Returns the size to show it at: half its pixel size."""
+    mmdc = need("mmdc")
+    mmd = workdir / f"{name}.mmd"
+    png = workdir / f"{name}.png"
+    mmd.write_text(source, encoding="utf-8")
+    cmd = [mmdc, "-q", "-i", str(mmd), "-o", str(png), "-s", "2", "-b", "white"]
+    if os.environ.get("MMDC_PUPPETEER_CONFIG"):
+        cmd += ["-p", os.environ["MMDC_PUPPETEER_CONFIG"]]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0 or not png.exists():
+        fail(f"mermaid-cli could not render {name}:\n{result.stderr.strip()}")
+    for folder in IAP_DIAGRAMS:
+        folder.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(png, folder / png.name)
+    width, height = png_size(png)
+    return width // 2, height // 2
+
+
+def org_alt(org: dict) -> str:
+    """A text description of an organization chart, for the PNG's alt text."""
+    def box(o: dict) -> str:
+        return f"{o['title']} ({o['subtitle']})" if o.get("subtitle") else o["title"]
+    parts = []
+    def walk(o: dict) -> None:
+        if o.get("children"):
+            parts.append(f"Reporting to {box(o)}: " + "; ".join(box(c) for c in o["children"]))
+            for c in o["children"]:
+                walk(c)
+    walk(org)
+    return "Organization chart. " + ". ".join([box(org) + " at the top"] + parts) + "."
+
+
+def render_diagrams(markdown: str, slug: str, title: str, workdir: Path, pngs: set[str]) -> tuple[str, list[str]]:
     """Replace each Mermaid block with a marker, and return the Markdown and the
-    HTML for each diagram, in order: an ilw-org-chart for a flowchart that is a
-    tree (an organization chart), otherwise an SVG rendered by mermaid-cli."""
-    svgs: list[str] = []
+    HTML for each diagram, in order.
+
+    Every diagram is rendered to a PNG (see render_png), named <slug>-<n>.png and
+    added to pngs. An organization chart (a flowchart that is a tree) is drawn
+    with the toolkit's ilw-org-chart, with its PNG shown until the chart has
+    drawn, so the page still shows the chart if the toolkit can't load. Any
+    other diagram is shown as its PNG."""
+    figures: list[str] = []
 
     def render(match: re.Match) -> str:
-        n = len(svgs)
+        n = len(figures)
+        name = f"{slug}-{n}"
+        width, height = render_png(match.group(1), name, workdir)
+        pngs.add(f"{name}.png")
+        img = f'<img class="emma-diagram-png" src="diagrams/{name}.png" width="{width}" height="{height}"'
         chart = org_chart(match.group(1))
         if chart:
-            svgs.append(org_chart_html(chart, f"{slug}-org-{n}", title))
-            return "\n" + DIAGRAM_MARK.format(n=n) + "\n"
-        mmdc = need("mmdc")
-        source = workdir / f"{slug}-{n}.mmd"
-        output = workdir / f"{slug}-{n}.svg"
-        source.write_text(match.group(1), encoding="utf-8")
-        cmd = [mmdc, "-q", "-i", str(source), "-o", str(output), "-I", f"{slug}-diagram-{n}", "-b", "transparent"]
-        if os.environ.get("MMDC_PUPPETEER_CONFIG"):
-            cmd += ["-p", os.environ["MMDC_PUPPETEER_CONFIG"]]
-        result = subprocess.run(cmd, capture_output=True, text=True)
-        if result.returncode != 0 or not output.exists():
-            fail(f"mermaid-cli could not render diagram {n + 1} in {slug}:\n{result.stderr.strip()}")
-        svg = output.read_text(encoding="utf-8")
-        svgs.append(svg[svg.index("<svg"):])  # drop any XML declaration
+            alt = org_alt(chart["org"])
+            figures.append(f'{img} alt="{html.escape(alt)}">\n' + org_chart_html(chart, f"{slug}-org-{n}", title))
+        else:
+            figures.append(f'{img} alt="{html.escape("Diagram, " + title)}">')
         return "\n" + DIAGRAM_MARK.format(n=n) + "\n"
 
-    return MERMAID_BLOCK.sub(render, markdown), svgs
+    return MERMAID_BLOCK.sub(render, markdown), figures
+
+
+def remove_old_pngs(keep: set[str]) -> None:
+    """Remove PNGs left from diagrams that no longer exist."""
+    for folder in IAP_DIAGRAMS:
+        for png in folder.glob("*.png"):
+            if png.name not in keep:
+                png.unlink()
 
 
 def to_html(markdown: str, source: str, slug: str) -> str:
@@ -267,16 +320,16 @@ def to_html(markdown: str, source: str, slug: str) -> str:
     return result.stdout
 
 
-def form_section(form: dict, folder: Path, data: dict, workdir: Path) -> str:
+def form_section(form: dict, folder: Path, data: dict, workdir: Path, pngs: set[str]) -> str:
     path = folder / form["file"]
     if not path.exists():
         fail(f"{rel(path)} does not exist (listed as {form['form']} in the IAP).")
     slug = path.stem  # ics-202
     markdown = fill_fields(path.read_text(encoding="utf-8"), data, rel(path))
-    markdown, svgs = render_diagrams(markdown, slug, f"{form['form']}: {form['title']}", workdir)
+    markdown, figures = render_diagrams(markdown, slug, f"{form['form']}: {form['title']}", workdir, pngs)
     body = to_html(markdown, rel(path), slug)
     body = DIAGRAM_MARK_RE.sub(
-        lambda m: f'<figure class="emma-diagram">{svgs[int(m.group(1))]}</figure>', body
+        lambda m: f'<figure class="emma-diagram">{figures[int(m.group(1))]}</figure>', body
     )
     return f'<section id="{slug}" class="emma-form">\n<ilw-content>\n{body}</ilw-content>\n</section>'
 
@@ -327,7 +380,9 @@ def page(title: str, main: str) -> str:
 <title>{e(title)} | {SITE_NAME}</title>
 <style>
 .emma-diagram {{ margin: 1.5rem 0; overflow-x: auto; }}
-.emma-diagram svg {{ max-width: 100%; height: auto; }}
+.emma-diagram img {{ max-width: 100%; height: auto; }}
+/* The PNG of an organization chart is hidden once ilw-org-chart has drawn it. */
+.emma-diagram.emma-org-drawn img.emma-diagram-png {{ display: none; }}
 .emma-form {{ border-top: 1px solid var(--il-storm-80, #c8c6c7); padding-top: 1rem; }}
 /* Organization charts (ilw-org-chart): white boxes with a 4 pt outline in each
    box's color, drawn inside the box so it doesn't change the chart's layout. */
@@ -345,13 +400,17 @@ ilw-org-chart .emma-org-italic {{ font-style: italic; }}
 customElements.whenDefined("ilw-org-chart").then(() => {{
   for (const chart of document.querySelectorAll("ilw-org-chart[data-emma-org]")) {{
     const data = JSON.parse(document.getElementById(chart.dataset.emmaOrg).textContent);
-    const color = () => chart.querySelectorAll("a.ilw-org-chart").forEach((box, i) => {{
-      const style = data.boxes[i];
-      if (!style) return;
-      box.classList.add("emma-org-box");
-      if (style.color) box.style.setProperty("--emma-org-color", style.color);
-      box.querySelector(".org-subtitle")?.classList.toggle("emma-org-italic", style.italic);
-    }});
+    const color = () => {{
+      const boxes = chart.querySelectorAll("a.ilw-org-chart");
+      chart.closest(".emma-diagram")?.classList.toggle("emma-org-drawn", boxes.length > 0);
+      boxes.forEach((box, i) => {{
+        const style = data.boxes[i];
+        if (!style) return;
+        box.classList.add("emma-org-box");
+        if (style.color) box.style.setProperty("--emma-org-color", style.color);
+        box.querySelector(".org-subtitle")?.classList.toggle("emma-org-italic", style.italic);
+      }});
+    }};
     new MutationObserver(color).observe(chart, {{ childList: true, subtree: true }});
     chart.org = data.org;
   }}
@@ -384,8 +443,10 @@ def publish_iap(iap_path: Path) -> None:
 
     name = data["incident"]["name"]
     title = f"Incident Action Plan: {name}" if name else "Incident Action Plan"
+    pngs: set[str] = set()
     with tempfile.TemporaryDirectory() as tmp:
-        sections = [form_section(f, folder, data, Path(tmp)) for f in forms]
+        sections = [form_section(f, folder, data, Path(tmp), pngs) for f in forms]
+    remove_old_pngs(pngs)
 
     main = "\n".join([
         f"<ilw-content>\n<h1>{html.escape(title)}</h1>\n{summary(data)}\n{contents(forms)}\n"
@@ -395,6 +456,8 @@ def publish_iap(iap_path: Path) -> None:
     IAP_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     IAP_OUTPUT.write_text(page(title, main), encoding="utf-8")
     print(f"Wrote {rel(IAP_OUTPUT)}: {len(forms)} forms from {rel(iap_path)}.")
+    if pngs:
+        print(f"Wrote {len(pngs)} diagram PNGs to " + " and ".join(rel(d) for d in IAP_DIAGRAMS) + ".")
 
 
 def main() -> int:

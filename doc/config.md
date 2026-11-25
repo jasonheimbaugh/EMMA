@@ -20,7 +20,7 @@ flowchart LR
 
     subgraph bundle["Content bundle (bundle/)"]
         html["HTML pages"]
-        svg["SVG diagrams"]
+        png["PNG diagrams"]
         json["JSON"]
         tk["Toolkit copy<br/>(for iOS)"]
         dbcopy[("SQLite")]
@@ -38,7 +38,7 @@ flowchart LR
     md --> py
     db --> py
     py --> pandoc --> html
-    py --> mmdc --> svg
+    py --> mmdc --> png
     py --> json
     cdn["Illinois Toolkit CDN"] -->|checked every build| py
     py --> tk
@@ -52,11 +52,11 @@ flowchart LR
     api -->|alerts| apns -->|alerts| ios
     ios -->|device token| api
     html --> web
-    svg --> web
+    png --> web
     json --> web
 
     html --> ios
-    svg --> ios
+    png --> ios
     json --> ios
     dbcopy --> ios
 
@@ -86,7 +86,7 @@ The scripts in `tools/` turn the source files into the content bundle in `bundle
 | From | To | With |
 | --- | --- | --- |
 | Markdown | HTML pages built with the Illinois Web Components Toolkit | pandoc, run by Python, with a page template that loads the toolkit |
-| Mermaid diagrams in Markdown | SVG images, linked from the HTML | mermaid-cli (Node.js), run by Python. The only non-Python step |
+| Mermaid diagrams in Markdown | PNG images (twice their display size, on white), linked from the HTML | mermaid-cli (Node.js), run by Python. The only non-Python step |
 | YAML | JSON, checked against `data/schema/` | Python |
 | SQLite | SQLite, created and updated | Python |
 
@@ -108,14 +108,14 @@ Diagrams are rendered once, at build time, so they appear instantly, look the sa
 
 - Plain HTML, CSS and JavaScript in `web/`, with no build step, built with the Illinois Web Components Toolkit loaded from its CDN, with the campus header and footer.
 - Online only: no offline mode.
-- Shows the bundle's HTML pages and SVG diagrams, and reads the bundle's JSON.
+- Shows the bundle's HTML pages and PNG diagrams, and reads the bundle's JSON. Organization charts (such as ICS 207) are drawn with the toolkit's `ilw-org-chart`, with the PNG shown until the chart has drawn.
 - Reads and updates records through the Python API in `api/`, which uses the SQLite databases. The browser never opens a database itself.
 
 ### iOS app (Swift)
 
 - Written in Swift, as much as possible, in `ios/`.
 - SwiftUI for everything interactive: alerts, check-ins, forms, maps and notifications.
-- Shows the bundle's HTML pages and SVG diagrams in a `WKWebView`, so documents look the same as on the web. Pages load the toolkit from `bundle/toolkit/` so they work offline, and have no campus header or footer.
+- Shows the bundle's HTML pages and PNG diagrams in a `WKWebView`, so documents look the same as on the web. Pages load the toolkit from `bundle/toolkit/` so they work offline, and have no campus header or footer.
 - Reads the bundle's JSON with `Codable`.
 - Keeps the SQLite databases on the device and reads them with GRDB.swift, so it works offline during an outage.
 
@@ -123,7 +123,7 @@ Diagrams are rendered once, at build time, so they appear instantly, look the sa
 
 - EMMA's features may later be offered through Rokwire, the University of Illinois's open source mobile platform behind the Illinois app, which covers both iOS and Android.
 - Rokwire apps are written in Flutter (Dart), not Swift, so this would be a separate app or module, not the Swift app.
-- It would use the same Python API and the same content bundle (HTML, SVG and JSON), so no data or content changes would be needed.
+- It would use the same Python API and the same content bundle (HTML, PNG diagrams and JSON), so no data or content changes would be needed.
 
 ## Python API
 

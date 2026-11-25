@@ -18,7 +18,9 @@
 <title>Incident Action Plan | EMMA</title>
 <style>
 .emma-diagram { margin: 1.5rem 0; overflow-x: auto; }
-.emma-diagram svg { max-width: 100%; height: auto; }
+.emma-diagram img { max-width: 100%; height: auto; }
+/* The PNG of an organization chart is hidden once ilw-org-chart has drawn it. */
+.emma-diagram.emma-org-drawn img.emma-diagram-png { display: none; }
 .emma-form { border-top: 1px solid var(--il-storm-80, #c8c6c7); padding-top: 1rem; }
 /* Organization charts (ilw-org-chart): white boxes with a 4 pt outline in each
    box's color, drawn inside the box so it doesn't change the chart's layout. */
@@ -36,13 +38,17 @@ ilw-org-chart .emma-org-italic { font-style: italic; }
 customElements.whenDefined("ilw-org-chart").then(() => {
   for (const chart of document.querySelectorAll("ilw-org-chart[data-emma-org]")) {
     const data = JSON.parse(document.getElementById(chart.dataset.emmaOrg).textContent);
-    const color = () => chart.querySelectorAll("a.ilw-org-chart").forEach((box, i) => {
-      const style = data.boxes[i];
-      if (!style) return;
-      box.classList.add("emma-org-box");
-      if (style.color) box.style.setProperty("--emma-org-color", style.color);
-      box.querySelector(".org-subtitle")?.classList.toggle("emma-org-italic", style.italic);
-    });
+    const color = () => {
+      const boxes = chart.querySelectorAll("a.ilw-org-chart");
+      chart.closest(".emma-diagram")?.classList.toggle("emma-org-drawn", boxes.length > 0);
+      boxes.forEach((box, i) => {
+        const style = data.boxes[i];
+        if (!style) return;
+        box.classList.add("emma-org-box");
+        if (style.color) box.style.setProperty("--emma-org-color", style.color);
+        box.querySelector(".org-subtitle")?.classList.toggle("emma-org-italic", style.italic);
+      });
+    };
     new MutationObserver(color).observe(chart, { childList: true, subtree: true });
     chart.org = data.org;
   }
@@ -976,7 +982,8 @@ customElements.whenDefined("ilw-org-chart").then(() => {
 </tbody>
 </table>
 <h3 id="ics-207-3-organization-chart">3. Organization Chart</h3>
-<figure class="emma-diagram"><ilw-org-chart id="ics-207-org-0" responsive label="ICS 207: Incident Organization Chart" data-emma-org="ics-207-org-0-data"></ilw-org-chart>
+<figure class="emma-diagram"><img class="emma-diagram-png" src="diagrams/ics-207-0.png" width="784" height="240" alt="Organization chart. Incident Command (To Be Assigned) at the top. Reporting to Incident Command (To Be Assigned): Operations Section Chief (To Be Assigned); Logistics Section Chief (To Be Assigned); Planning Section Chief (To Be Assigned); RTIC Supervisor (To Be Assigned).">
+<ilw-org-chart id="ics-207-org-0" responsive label="ICS 207: Incident Organization Chart" data-emma-org="ics-207-org-0-data"></ilw-org-chart>
 <script type="application/json" id="ics-207-org-0-data">{"org": {"title": "Incident Command", "subtitle": "To Be Assigned", "children": [{"title": "Operations Section Chief", "subtitle": "To Be Assigned"}, {"title": "Logistics Section Chief", "subtitle": "To Be Assigned"}, {"title": "Planning Section Chief", "subtitle": "To Be Assigned"}, {"title": "RTIC Supervisor", "subtitle": "To Be Assigned"}], "large": true}, "boxes": [{"color": "#006230", "italic": true}, {"color": "#ff5f05", "italic": true}, {"color": "#fcb316", "italic": true}, {"color": "#009fd4", "italic": true}, {"color": "#5c0e41", "italic": true}]}</script></figure>
 
 <h3 id="ics-207-4-prepared-by">4. Prepared by</h3>
