@@ -95,6 +95,9 @@ REQUIREMENTS = [
         "name": "mermaid-cli",
         "command": "mmdc",
         "purpose": "renders Mermaid diagrams in data/md/ to SVG in bundle/",
+        # Version 12 or newer: its Mermaid includes the ELK layout (layout: elk),
+        # which older versions needed the separate @mermaid-js/layout-elk package for.
+        "min_version": (12, 0),
         # Installed with Node's npm, so Node.js must be installed first.
         # It downloads its own copy of Chrome (headless) the first time it is installed.
         "install": {

@@ -37,7 +37,7 @@ Run `python3 tools/install.py` to check for everything the project needs. It rep
 | Python 3.13 or newer | The scripts in `tools/` and the API in `api/`. If only an older Python is found, the script offers to install the latest with Homebrew |
 | pandoc | Converting Markdown in `data/md/` to HTML in `bundle/` |
 | Node.js 20 or newer | Running mermaid-cli, the only non-Python step of the build |
-| mermaid-cli (`mmdc`) | Rendering Mermaid diagrams to SVG in `bundle/`. Installed with npm; it downloads its own headless Chrome the first time |
+| mermaid-cli (`mmdc`) 12 or newer | Rendering Mermaid diagrams to SVG in `bundle/`. Installed with npm; it downloads its own headless Chrome the first time. Version 12 includes the ELK layout |
 | Xcode (macOS only) | Building and running the iOS app. Comes only from the Mac App Store: the script opens its page there. The Command Line Tools alone are not enough. If Xcode is installed but not selected, the script prints the `xcode-select` command to switch to it |
 
 When the project needs something new, add it to the `REQUIREMENTS` list in `tools/install.py` and to the table above.
@@ -60,6 +60,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
   - Mermaid diagrams are rendered to SVG ahead of time with mermaid-cli, so they appear instantly, look the same everywhere and work offline on iOS.
   - YAML becomes JSON, checked against the schemas in `data/schema/`.
   - The SQLite databases are created and updated.
+- **Mermaid ELK layout:** diagrams can use `layout: elk` in their config. Mermaid 12 and newer include ELK, so the separate `@mermaid-js/layout-elk` package is not needed; `tools/install.py` requires mermaid-cli 12 or newer. Marked 3 bundles Mermaid 12 too.
 - **Shared types:** Python, JavaScript and Swift types are generated from the JSON Schemas (for example with quicktype), so field names stay the same in every language.
 - **iOS app:**
   - SwiftUI for everything interactive: alerts, check-ins, forms, maps and notifications.
@@ -79,6 +80,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-25:** `tools/install.py` requires mermaid-cli 12 or newer, whose Mermaid includes the ELK layout; no separate layout-elk package is needed.
 - **2026-11-25:** `doc/config.md`: notifications through Apple's Push Notification service (APNs), with a sequence diagram, setup, and the kinds of notification. `.gitignore` excludes APNs keys.
 - **2026-11-23:** ICS 207: "RTIC" renamed "RTIC Supervisor". The blank-line workarounds for equal box sizes were removed.
 - **2026-11-23:** `data/md/template/ics/ics-207.md`: the ICS 207 organization chart template, a Mermaid flowchart with brand-colored outlines. Folders for ICS templates and active incidents.
