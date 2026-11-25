@@ -29,6 +29,7 @@ Nothing is built yet: this README records the decisions made so far.
 | `bundle/iap/diagrams/` | PNGs of the IAP's Mermaid diagrams for the iOS app, written by `tools/publish.py --iap` |
 | `api/` | The Python API that the web app uses to read the SQLite databases |
 | `web/` | The web app: plain HTML, CSS and JavaScript |
+| `web/index.html` | The web app's home page, with a link to the Incident Action Plan. Written by hand, with the same toolkit page layout and header as the built pages |
 | `web/iap/index.html` | The Incident Action Plan page, built by `tools/publish.py --iap`. Don't edit it by hand |
 | `web/iap/diagrams/` | PNGs of the IAP's Mermaid diagrams for the web page, written by `tools/publish.py --iap` |
 | `ios/` | The iOS app, in Swift |
@@ -97,6 +98,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-25:** `web/index.html`: home page with a link to the Incident Action Plan.
 - **2026-11-25:** MIT License (`LICENSE`), and the University's copyright and license header in every code file and in the pages `tools/publish.py` builds.
 - **2026-11-25:** iOS bundle ID `edu.illinois.emma`, in `data/yaml/app.yaml` with its schema. When the Apple Developer account is needed, recorded in Decisions.
 - **2026-11-25:** Mermaid diagrams are rendered to PNG, not SVG, for both the web and iOS. `tools/publish.py --iap` writes them to `web/iap/diagrams/` and `bundle/iap/diagrams/`; an organization chart's PNG is shown until `ilw-org-chart` has drawn it.
