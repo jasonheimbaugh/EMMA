@@ -33,6 +33,8 @@ Nothing is built yet: this README records the decisions made so far.
 | `web/iap/index.html` | The Incident Action Plan page, built by `tools/publish.py --iap`. Don't edit it by hand |
 | `web/iap/diagrams/` | PNGs of the IAP's Mermaid diagrams for the web page, written by `tools/publish.py --iap` |
 | `ios/` | The iOS app, in Swift |
+| `ios/EMMA.xcodeproj` | The Xcode project (bundle ID `edu.illinois.emma`, iOS 17 or newer, iPhone and iPad). Its `web` folder reference builds a copy of `web/` into the app |
+| `ios/EMMA/` | The app's Swift code and assets. Xcode includes every file in this folder automatically |
 
 `.gitignore` keeps Python cache files, macOS `.DS_Store` files, Xcode user data and build output, SQLite journal files and APNs keys (`*.p8`) out of the repository.
 
@@ -87,6 +89,14 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 - **Notifications:** the Python API sends push notifications to the iOS app through Apple's Push Notification service (APNs), signed with an APNs key (`.p8`, never committed). Urgent alerts are time-sensitive; Critical Alerts need an entitlement from Apple. Details in `doc/config.md`.
 - **iOS bundle ID:** `edu.illinois.emma` (in `data/yaml/app.yaml`), in the University's reversed-domain style, chosen now so it doesn't have to change when the app moves from a free Personal Team to the University's Apple Developer account (Apple treats a new bundle ID as a different app). Confirm with Technology Services that it fits their naming before registering it.
 - **Apple Developer account:** not needed to start. A free Personal Team in Xcode can build in the Simulator and run on your own iPhone (installs expire after 7 days). The paid account, ideally the University's, is needed for push notifications through APNs, the Critical Alerts entitlement, TestFlight and the App Store.
+- **iOS app, first version:** a SwiftUI app that shows the web app's pages in a `WKWebView`, with Back and Home buttons and the page title in the navigation bar.
+  - **Content:** the Xcode project includes `web/` as a folder reference, so every build copies the current `web/` into the app. Run `tools/publish.py` before building to include the latest pages. (This replaces the plan to build iOS content into `bundle/`; `bundle/iap/diagrams/` is no longer used by the app.)
+  - **Serving pages:** `ContentSchemeHandler.swift` serves `web/` at `emma://app/...`, so links such as `iap/` open `iap/index.html` as on a web server, and JavaScript modules work (they don't from `file://`).
+  - **Toolkit offline:** the pages' `//cdn...` addresses become `emma://cdn...` in the app. The handler fetches them over https and saves a copy in the app's Caches folder, and serves the saved copy when there is no network. So the toolkit works offline after the app has been opened once online. Files the toolkit loads by full `https://` address (such as fonts) rely on WebKit's own cache.
+  - **No campus header or footer:** the app hides `ilw-header` and `ilw-footer` with a style added to every page.
+  - **Links:** links to other websites, email addresses and phone numbers open in Safari, Mail or Phone.
+  - **Signing:** choose the development team once in Xcode (target EMMA, Signing & Capabilities); Xcode saves it in the project.
+  - **Not yet:** an app icon (the icon set is empty), push notifications, and the SQLite data.
 - **Why an iOS app as well as the web app:** dependable push alerts (and Critical Alerts, with Apple's approval), offline access and background location. These are weak or missing in a web app on iPhone.
 - **Rokwire:** later, EMMA may also be offered on iOS and Android through Rokwire, the platform behind the Illinois app. Rokwire apps are Flutter, not Swift, so this would use the same API and content bundle but separate app code. For now EMMA is a standalone web app and Swift iOS app. See `doc/config.md`.
 
@@ -98,6 +108,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-25:** iOS app, first version: `ios/EMMA.xcodeproj` and the SwiftUI code in `ios/EMMA/`, showing `web/` in a web view with the toolkit cached for offline use.
 - **2026-11-25:** `web/index.html`: home page with a link to the Incident Action Plan.
 - **2026-11-25:** MIT License (`LICENSE`), and the University's copyright and license header in every code file and in the pages `tools/publish.py` builds.
 - **2026-11-25:** iOS bundle ID `edu.illinois.emma`, in `data/yaml/app.yaml` with its schema. When the Apple Developer account is needed, recorded in Decisions.
