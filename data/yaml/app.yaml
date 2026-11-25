@@ -1,0 +1,10 @@
+# Settings for the EMMA apps. Checked against data/schema/app.schema.json.
+
+name: EMMA
+full_name: EMergency Management App
+
+ios:
+  # The iOS app's bundle identifier: University of Illinois style (illinois.edu
+  # reversed). Set it in Xcode under the target's Signing & Capabilities.
+  # Changing it later makes Apple treat the app as a different app, so keep it.
+  bundle_id: edu.illinois.emma

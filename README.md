@@ -14,8 +14,10 @@ Nothing is built yet: this README records the decisions made so far.
 | `data/md/template/ics/` | Blank Incident Command System form templates, such as `ics-207.md` |
 | `data/md/incident/active/yyyy-mm-dd-####/` | One folder per active incident, with its filled-in forms (for example `ics-207.md`) |
 | `data/yaml/` | YAML configuration and structured content |
+| `data/yaml/app.yaml` | App settings, such as the iOS bundle ID |
 | `data/yaml/template/iap.yaml` | The Incident Action Plan (IAP) template: shared incident details and the list of forms |
 | `data/yaml/incident/active/yyyy-mm-dd-####/` | One folder per active incident, with its filled-in `iap.yaml` |
+| `data/schema/app.schema.json` | The schema `app.yaml` is checked against |
 | `data/schema/iap.schema.json` | The schema every `iap.yaml` is checked against |
 | `data/schema/` | JSON Schemas for the YAML files, from which the Python, JavaScript and Swift types are generated |
 | `data/sqlite/` | SQLite databases, created and updated by `tools/` |
@@ -80,6 +82,8 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
   - The SQLite databases are kept on the device and read with GRDB.swift, so the app works offline during an outage.
   - Swift reads the bundle's JSON with `Codable`, so no YAML library is needed on iOS.
 - **Notifications:** the Python API sends push notifications to the iOS app through Apple's Push Notification service (APNs), signed with an APNs key (`.p8`, never committed). Urgent alerts are time-sensitive; Critical Alerts need an entitlement from Apple. Details in `doc/config.md`.
+- **iOS bundle ID:** `edu.illinois.emma` (in `data/yaml/app.yaml`), in the University's reversed-domain style, chosen now so it doesn't have to change when the app moves from a free Personal Team to the University's Apple Developer account (Apple treats a new bundle ID as a different app). Confirm with Technology Services that it fits their naming before registering it.
+- **Apple Developer account:** not needed to start. A free Personal Team in Xcode can build in the Simulator and run on your own iPhone (installs expire after 7 days). The paid account, ideally the University's, is needed for push notifications through APNs, the Critical Alerts entitlement, TestFlight and the App Store.
 - **Why an iOS app as well as the web app:** dependable push alerts (and Critical Alerts, with Apple's approval), offline access and background location. These are weak or missing in a web app on iPhone.
 - **Rokwire:** later, EMMA may also be offered on iOS and Android through Rokwire, the platform behind the Illinois app. Rokwire apps are Flutter, not Swift, so this would use the same API and content bundle but separate app code. For now EMMA is a standalone web app and Swift iOS app. See `doc/config.md`.
 
@@ -92,6 +96,7 @@ When the project needs something new, add it to the `REQUIREMENTS` list in `tool
 
 ## Change log
 
+- **2026-11-25:** iOS bundle ID `edu.illinois.emma`, in `data/yaml/app.yaml` with its schema. When the Apple Developer account is needed, recorded in Decisions.
 - **2026-11-25:** Mermaid diagrams are rendered to PNG, not SVG, for both the web and iOS. `tools/publish.py --iap` writes them to `web/iap/diagrams/` and `bundle/iap/diagrams/`; an organization chart's PNG is shown until `ilw-org-chart` has drawn it.
 - **2026-11-25:** `tools/publish.py` draws organization charts (Mermaid flowcharts that are trees, such as ICS 207's) with the toolkit's `ilw-org-chart` instead of an SVG. The Markdown keeps the Mermaid chart, which Marked 3 and the iOS app still use.
 - **2026-11-25:** `tools/publish.py --iap`: builds `web/iap/index.html` from the IAP template or an incident's IAP. `tools/install.py` checks for PyYAML and jsonschema.
